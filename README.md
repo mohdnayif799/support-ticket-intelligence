@@ -318,6 +318,21 @@ listed. The per-detector `count` values are always exact. Those counts and
 the reasoning behind each threshold are in
 [Anomaly detection](#anomaly-detection) below.
 
+
+## Evaluation
+
+The system was evaluated against the assessment brief’s five sample queries and the project’s automated test suite.
+
+* **Sample-query accuracy:** All five sample queries return results matching values independently verified against the dataset.
+* **Automated testing:** **194 tests pass** using a deterministic stub provider.
+* **Offline test execution:** Tests run without a live LLM, API key, or network connection.
+* **Core logic coverage:** The stub’s prepared responses still pass through the application’s normal query-plan validation and pandas execution path.
+
+The stub-based tests verify the application’s validation and execution logic; they do not establish that a live LLM will always produce a correct query plan.
+
+
+
+
 ## Anomaly detection
 
 No model is involved in any of this — every detector is plain pandas over

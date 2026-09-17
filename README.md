@@ -462,3 +462,11 @@ support-ticket-intelligence/
 ```
 
 Package `__init__.py` files are omitted above for readability.
+
+## Author
+
+**Muhammed Nayifuddin**  
+CSE (AI&ML) Student  
+Neil Gogte Institute of Technology (NGIT)  
+📧 [mohdnayif799@gmail.com](mailto:mohdnayif799@gmail.com)  
+🔗 [GitHub](https://github.com/mohdnayif799) · [LinkedIn](https://www.linkedin.com/in/muhammed-nayifuddin/)

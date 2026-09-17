@@ -82,25 +82,8 @@ Execution happens in `app/query/executor.py` in plain pandas, unit-tested
 with no model involved. The narration call that follows receives only
 numbers Python has already computed, so it has nothing left to calculate.
 
-```mermaid
-flowchart LR
-    Q["Question"] --> PL["Planner LLM"]
-    PL --> J["QueryPlan JSON"]
-    J --> V{"Pydantic validation"}
-    V -- "invalid: repair, up to 2 retries" --> RP["Repair prompt"]
-    RP --> PL
-    V -- "valid" --> EX["pandas executor"]
-    EX --> R["Computed result"]
-    R --> NA["Narrator LLM"]
-    R -. "narration off or failed" .-> TE["Template sentence"]
-    NA --> AN["Answer"]
-    TE --> AN
+<img width="1114" height="1412" alt="ChatGPT Image Sep 17, 2026, 10_46_36 PM" src="https://github.com/user-attachments/assets/1912f2ce-112a-44ca-afe1-bb26e0fd72c2" />
 
-    classDef llm fill:#eaddff,stroke:#6750a4,color:#1d1b20
-    classDef det fill:#d7f0da,stroke:#2e7d32,color:#1b1b1b
-    class PL,NA,RP llm
-    class J,V,EX,R,TE det
-```
 
 Purple nodes involve the LLM; green nodes are deterministic Python. The
 repair loop only ever feeds the validator's error message back to the

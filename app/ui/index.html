@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Support Ticket Intelligence</title>
+<style>
+:root{
+  --ink:#151A21; --paper:#EDF0F3; --surface:#FFFFFF; --rule:#D3DAE2;
+  --muted:#5C6773; --field:#F6F8FA;
+  --crit:#A8201A; --high:#8A4B08; --med:#1B4F8A; --ok:#1B6B4C;
+  --focus:#1B4F8A;
+  --sans:ui-sans-serif,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);
+  font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
+header{background:var(--surface);border-bottom:1px solid var(--rule);padding:14px 20px}
+.bar{max-width:1080px;margin:0 auto;display:flex;flex-wrap:wrap;gap:16px;align-items:baseline}
+h1{font-size:17px;font-weight:650;margin:0;letter-spacing:-.01em}
+.facts{margin-left:auto;display:flex;gap:18px;flex-wrap:wrap;font-size:12.5px;color:var(--muted)}
+.facts b{font-family:var(--mono);font-weight:500;color:var(--ink)}
+main{max-width:1080px;margin:0 auto;padding:20px}
+section{background:var(--surface);border:1px solid var(--rule);border-radius:6px;
+  padding:18px;margin-bottom:16px}
+h2{font-size:13px;font-weight:650;margin:0 0 12px;color:var(--muted)}
+form{display:flex;gap:8px}
+input[type=text]{flex:1;padding:10px 12px;font:inherit;background:var(--field);
+  border:1px solid var(--rule);border-radius:4px;color:var(--ink)}
+input[type=text]:focus,button:focus-visible,select:focus-visible{outline:2px solid var(--focus);outline-offset:1px}
+button{padding:10px 18px;font:inherit;font-weight:550;background:var(--ink);color:#fff;
+  border:none;border-radius:4px;cursor:pointer}
+button:disabled{opacity:.5;cursor:default}
+button.ghost{background:transparent;color:var(--muted);border:1px solid var(--rule);
+  padding:5px 10px;font-size:12.5px;font-weight:450}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.chip{font-size:12.5px;padding:5px 10px;background:var(--field);border:1px solid var(--rule);
+  border-radius:12px;cursor:pointer;color:var(--muted)}
+.chip:hover{border-color:var(--muted);color:var(--ink)}
+.answer{font-size:19px;line-height:1.45;margin:0 0 6px;letter-spacing:-.005em}
+.scope{font-size:12.5px;color:var(--muted);font-family:var(--mono)}
+.notes{margin:12px 0 0;padding:0;list-style:none;font-size:13px;color:var(--muted)}
+.notes li{padding-left:14px;position:relative;margin-top:4px}
+.notes li::before{content:"";position:absolute;left:2px;top:9px;width:4px;height:4px;
+  border-radius:50%;background:var(--muted)}
+details{margin-top:14px;border-top:1px solid var(--rule);padding-top:12px}
+summary{cursor:pointer;font-size:12.5px;color:var(--muted);font-weight:550}
+pre{font-family:var(--mono);font-size:12px;line-height:1.5;background:var(--field);
+  border:1px solid var(--rule);border-radius:4px;padding:12px;overflow-x:auto;margin:10px 0 0}
+table{width:100%;border-collapse:collapse;font-size:13px;margin-top:12px}
+th{text-align:left;font-weight:600;font-size:11.5px;color:var(--muted);
+  border-bottom:1px solid var(--rule);padding:7px 8px;white-space:nowrap}
+td{padding:7px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+td.num{font-family:var(--mono);text-align:right;white-space:nowrap}
+.scroll{overflow-x:auto;max-height:420px;overflow-y:auto}
+.det{border:1px solid var(--rule);border-radius:5px;padding:14px;margin-bottom:10px}
+.det-head{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+.det-head h3{margin:0;font-size:14.5px;font-weight:600}
+.count{font-family:var(--mono);font-size:19px;font-weight:600;margin-left:auto}
+.sev{font-size:11px;padding:2px 7px;border-radius:3px;font-weight:600;border:1px solid}
+.sev-high{color:var(--crit);border-color:var(--crit)}
+.sev-medium{color:var(--high);border-color:var(--high)}
+.sev-low{color:var(--med);border-color:var(--med)}
+.rule{font-family:var(--mono);font-size:11.5px;color:var(--muted);margin-top:7px;
+  word-break:break-word}
+.err{border-left:3px solid var(--crit);padding:12px 14px;background:#FDF5F4;
+  border-radius:0 4px 4px 0}
+.sec-head{display:flex;align-items:baseline;gap:12px;margin-bottom:12px}
+.sec-head h2{margin:0}
+.sec-head .ghost{margin-left:auto}
+#banner:not(:empty){margin-bottom:16px}
+.entry{padding:18px 0;border-top:1px solid var(--rule)}
+.entry:first-child{padding-top:0;border-top:none}
+.q{margin:0 0 12px;font-size:14.5px;font-weight:550;color:var(--muted);
+  padding-left:11px;border-left:2px solid var(--rule)}
+.err b{color:var(--crit)}
+.hint{font-size:13px;color:var(--muted);margin-top:6px}
+.muted{color:var(--muted)}
+.controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+select{padding:7px 10px;font:inherit;font-size:13px;background:var(--field);
+  border:1px solid var(--rule);border-radius:4px;color:var(--ink)}
+.spin{display:inline-block;width:12px;height:12px;border:2px solid var(--rule);
+  border-top-color:var(--ink);border-radius:50%;animation:s .7s linear infinite;
+  vertical-align:-2px;margin-right:6px}
+@keyframes s{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.spin{animation:none}}
+@media (max-width:640px){.facts{width:100%;margin-left:0;gap:12px}form{flex-direction:column}}
+</style>
+</head>
+<body>
+<header>
+  <div class="bar">
+    <h1>Support Ticket Intelligence</h1>
+    <div class="facts" id="facts"><span class="muted">Loading dataset…</span></div>
+  </div>
+</header>
+
+<main>
+  <section>
+    <h2>Ask about the tickets</h2>
+    <form id="qform">
+      <input type="text" id="q" autocomplete="off" placeholder="Ask anything about the tickets…" aria-label="Question">
+      <button type="submit" id="ask">Ask</button>
+    </form>
+    <div class="chips" id="chips"></div>
+  </section>
+
+  <div id="banner"></div>
+
+  <section id="answer" hidden>
+    <div class="sec-head">
+      <h2>Answers</h2>
+      <button class="ghost" id="clear" type="button">Clear</button>
+    </div>
+    <div id="history"></div>
+  </section>
+
+  <section>
+    <h2>Anomalies</h2>
+    <div class="controls">
+      <select id="win" aria-label="Time window">
+        <option value="all_time">All time</option>
+        <option value="this_month">This month</option>
+        <option value="this_week">This week</option>
+        <option value="last_7_days">Last 7 days</option>
+        <option value="last_30_days">Last 30 days</option>
+      </select>
+      <select id="atype" aria-label="Detector">
+        <option value="all">All detectors</option>
+        <option value="resolution_outlier">Resolution outliers</option>
+        <option value="aging_unresolved">Aging unresolved</option>
+        <option value="response_sla_breach">Response SLA breaches</option>
+        <option value="low_rating">Low ratings</option>
+        <option value="data_integrity">Data integrity</option>
+      </select>
+      <button class="ghost" id="scan">Run scan</button>
+      <span id="ascope" class="scope"></span>
+    </div>
+    <div id="anoms"><span class="muted">Run a scan to see flagged tickets.</span></div>
+  </section>
+</main>
+
+<script>
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const NUM = new Set(["response_time_hrs","resolution_time_hrs","customer_rating","metric","age_hours","threshold_hrs","sla_hours","over_by_hours"]);
+
+async function api(path, opts) {
+  const r = await fetch(path, opts);
+  const body = await r.json().catch(() => ({ error: "Server returned an unreadable response." }));
+  if (!r.ok) throw body;
+  return body;
+}
+
+function errBox(e) {
+  return `<div class="err"><b>${esc(e.error || e.detail?.error || "Something went wrong.")}</b>
+    ${e.detail && typeof e.detail === "string" ? `<div class="hint">${esc(e.detail)}</div>` : ""}
+    ${e.hint || e.detail?.hint ? `<div class="hint">${esc(e.hint || e.detail.hint)}</div>` : ""}</div>`;
+}
+
+function table(cols, rows) {
+  if (!rows?.length) return "";
+  const head = cols.map(c => `<th>${esc(c)}</th>`).join("");
+  const body = rows.map(r => "<tr>" + cols.map(c =>
+    `<td class="${NUM.has(c) ? "num" : ""}">${r[c] === null || r[c] === undefined ? '<span class="muted">—</span>' : esc(r[c])}</td>`
+  ).join("") + "</tr>").join("");
+  return `<div class="scroll"><table><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table></div>`;
+}
+
+async function loadFacts() {
+  try {
+    const h = await api("/api/health");
+    const d = h.dataset;
+    $("#facts").innerHTML =
+      `<span>Tickets <b>${d.row_count}</b></span>
+       <span>Range <b>${d.earliest_ticket.slice(0,10)} → ${d.latest_ticket.slice(0,10)}</b></span>
+       <span title="Relative dates like 'this month' resolve against this time">Reference <b>${d.reference_time.slice(0,16).replace("T"," ")}</b></span>
+       <span>Model <b>${esc(h.llm.model || "not configured")}</b></span>`;
+    if (h.status !== "ok") {
+      $("#banner").innerHTML = errBox({
+        error: "The language model is not reachable, so questions will fail.",
+        detail: (h.llm.errors || []).join("; ") || h.llm.detail,
+        hint: "Anomaly scanning below works without a model."
+      });
+    }
+    const s = await api("/api/schema");
+    $("#chips").innerHTML = s.example_questions
+      .map(q => `<span class="chip" role="button" tabindex="0">${esc(q)}</span>`).join("");
+    document.querySelectorAll(".chip").forEach(c => {
+      const go = () => { $("#q").value = c.textContent; $("#qform").requestSubmit(); };
+      c.onclick = go;
+      c.onkeydown = e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); go(); } };
+    });
+  } catch (e) {
+    $("#facts").innerHTML = `<span class="muted">${esc(e.error || "Could not load dataset")}</span>`;
+  }
+}
+
+$("#qform").onsubmit = async ev => {
+  ev.preventDefault();
+  const question = $("#q").value.trim();
+  if (!question) return;
+  $("#answer").hidden = false;
+  $("#ask").disabled = true;
+
+  // Every question gets its own entry and earlier ones stay on the page.
+  // Newest first, so the latest answer sits directly under the input box
+  // and needs no scrolling.
+  const entry = document.createElement("article");
+  entry.className = "entry";
+  entry.innerHTML = `<p class="q">${esc(question)}</p>`
+    + `<div class="a"><span class="spin"></span><span class="muted">Interpreting the question…</span></div>`;
+  $("#history").prepend(entry);
+  const slot = entry.querySelector(".a");
+  $("#q").value = "";
+  $("#q").focus();
+
+  try {
+    const d = await api("/api/query", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ question })
+    });
+    const r = d.result;
+    let html = `<p class="answer">${esc(d.answer)}</p>`;
+    const w = r.window?.label;
+    html += `<div class="scope">${esc(d.plan_summary)}${w && w !== "all time" ? " · " + esc(w) : ""} · ${r.matched_count} ticket(s) matched · ${d.meta.total_ms}ms</div>`;
+    if (r.notes?.length) html += `<ul class="notes">${r.notes.map(n => `<li>${esc(n)}</li>`).join("")}</ul>`;
+    if (r.rows?.length) html += table(r.columns, r.rows);
+    if (d.anomalies) html += renderDetectors(d.anomalies.detectors);
+    html += `<details><summary>How this was computed</summary>
+      <pre>${esc(JSON.stringify(d.plan, null, 2))}</pre>
+      <div class="scope">${esc(d.meta.provider)} · ${esc(d.meta.model)} · plan ${d.meta.plan_latency_ms}ms · execution ${d.meta.execution_ms}ms · answer phrased by ${d.meta.narrated_by_llm ? "model" : "template"}</div>
+      </details>`;
+    slot.innerHTML = html;
+  } catch (e) {
+    slot.innerHTML = errBox(e);
+  } finally {
+    $("#ask").disabled = false;
+  }
+};
+
+function renderDetectors(dets) {
+  if (!dets?.length) return "";
+  return dets.map(d => {
+    const cols = d.tickets?.length ? Object.keys(d.tickets[0]) : [];
+    return `<div class="det">
+      <div class="det-head">
+        <h3>${esc(d.title)}</h3>
+        <span class="sev sev-${esc(d.severity)}">${esc(d.severity)}</span>
+        <span class="count">${d.count}</span>
+      </div>
+      <div class="rule">${esc(d.rule)}</div>
+      ${d.note ? `<ul class="notes"><li>${esc(d.note)}</li></ul>` : ""}
+      ${d.truncated ? `<ul class="notes"><li>Showing the first ${d.tickets.length} of ${d.count}.</li></ul>` : ""}
+      ${table(cols, d.tickets)}
+    </div>`;
+  }).join("");
+}
+
+$("#clear").onclick = () => {
+  $("#history").innerHTML = "";
+  $("#answer").hidden = true;
+  $("#q").focus();
+};
+
+$("#scan").onclick = async () => {
+  $("#scan").disabled = true;
+  $("#anoms").innerHTML = `<span class="spin"></span><span class="muted">Scanning…</span>`;
+  try {
+    const d = await api("/api/anomalies", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ types: [$("#atype").value], window: $("#win").value })
+    });
+    $("#ascope").textContent = `${d.tickets_in_scope} in scope · ${d.total_flags} flags · ${d.window?.label ?? ""}`;
+    $("#anoms").innerHTML = renderDetectors(d.detectors) || `<span class="muted">No anomalies found.</span>`;
+  } catch (e) {
+    $("#anoms").innerHTML = errBox(e);
+  } finally {
+    $("#scan").disabled = false;
+  }
+};
+
+loadFacts();
+</script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+# Core API
+fastapi==0.141.1
+uvicorn[standard]==0.53.0
+pydantic==2.13.5
+pydantic-settings==2.13.1
+
+# Data
+pandas==3.0.2
+numpy==2.4.4
+
+# LLM transport (one client serves both Groq and Ollama)
+httpx==0.28.1
+python-dotenv==1.2.2
+
+# Tests
+pytest==9.1.1

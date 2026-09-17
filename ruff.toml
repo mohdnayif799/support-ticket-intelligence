@@ -1,0 +1,22 @@
+line-length = 100
+target-version = "py311"
+
+[lint]
+select = ["E", "F", "W", "I", "UP", "B", "SIM", "C4", "RET", "ARG", "PTH", "TRY", "ISC"]
+ignore = [
+    # FastAPI's Depends() in a default argument is the documented idiom.
+    "B008",
+    # The dataset carries naive timestamps and the reference clock derives from
+    # them, so timezone-aware datetimes would imply precision that is not there.
+    "DTZ001", "DTZ005",
+    # Long, specific error messages are deliberate: users read them.
+    "TRY003",
+    # `class X(str, Enum)` is the established Pydantic idiom and generates the
+    # JSON-schema enums this project depends on.
+    "UP042",
+]
+
+[lint.per-file-ignores]
+# Unused parameters satisfy the LLMProvider protocol signature.
+"app/llm/stub.py" = ["ARG002"]
+"tests/*" = ["ARG001", "ARG002", "E501", "S101"]
